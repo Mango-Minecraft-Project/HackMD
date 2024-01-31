@@ -327,8 +327,19 @@ ServerEvents.recipes((event) => {
     .damageIngredient("#minecraft:axes");
 });
 ```
+
 :::info
 僅限 `kubejs:shaped` 和 `kubejs:shapeless` 配方可使用 `.damageIngredient`
+:::
+
+## 獲取精確的世界種子
+
+```js=
+const seed = `${NBT.l(server.worldData.worldGenOptions().seed())}`.replace("L", "");
+```
+
+:::warning
+只能儲存在String中，若存成Number則會因為Java Doubl浮點數精度誤差導致不精確
 :::
 
 ---
