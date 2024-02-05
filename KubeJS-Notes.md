@@ -6,6 +6,13 @@
 
 ---
 
+## 下載測試版 KubeJS
+
+- [Rhino NeoForge][saps_meven-rhino_neoforge]
+- [KubeJS NeoForge][saps_meven-kubejs_neoforge]
+
+---
+
 ## 腳本預處理參數 [KubeJS 6+]
 
 可在腳本開頭使用預處理參數，如下
@@ -19,7 +26,7 @@
 ||||||
 
 ### 範例
-```js
+```javascript=
 // priority: 100
 // ignored: false
 // packmode: dev
@@ -38,7 +45,7 @@
 
 ## 自製 KubeJS 用 VSCode Code Snippet
 
-```json
+```json=
 {
   "event": {
     "scope": "javascript",
@@ -79,7 +86,7 @@
 ```
 
 ## 替換多個物品配方
-```js=
+```javascript=
 ServerEvents.recipes((event) => {
   event.replaceInput(
     {
@@ -218,7 +225,7 @@ Kubejs 有一個名為 *beans* 的功能，可以讓腳本更易讀。
 
 ### 蒸氣鍋爐熱量源 - `boilerHeatHandler`
 
-```js=
+```javascript=
 CreateEvents.boilerHeatHandler((event) => {
   //? 熱量等級說明：
   //? -1：此方塊不提供任何形式的熱量。
@@ -249,7 +256,7 @@ CreateEvents.boilerHeatHandler((event) => {
 
 ### 管道流體效果 - `pipeFluidEffect`
 
-```js=
+```javascript=
 CreateEvents.pipeFluidEffect((event) => {
   //? 添加液體處理器，支援 FluidIngredient。
 
@@ -271,7 +278,7 @@ CreateEvents.pipeFluidEffect((event) => {
 
 ### 注液器注液方塊 - `spoutHandler`
 
-```js=
+```javascript=
 CreateEvents.spoutHandler((event) => {
   //? 創建注液器處理器，需要提供 ID，因為這裡沒有辦法生成一個一致的 UUID。
   //?
@@ -318,7 +325,7 @@ CreateEvents.spoutHandler((event) => {
 
 ![damage ingredient recipe](https://hackmd.io/_uploads/H1KHEFIca.png)
 
-```js=
+```javascript=
 ServerEvents.recipes((event) => {
   const { kubejs } = event.recipes;
 
@@ -334,13 +341,82 @@ ServerEvents.recipes((event) => {
 
 ## 獲取精確的世界種子
 
-```js=
-const seed = `${NBT.l(server.worldData.worldGenOptions().seed())}`.replace("L", "");
+```javascript=
+const seed = NBT.l(server.worldData.worldGenOptions().seed());
 ```
 
 :::warning
-只能儲存在String中，若存成Number則會因為Java Doubl浮點數精度誤差導致不精確
+只能儲存成 String 或 NBT，若存成 Number 則會因為 Java Double 浮點數精度誤差導致不精確
 :::
+
+### 在配方中使用
+
+```javascript=
+ServerEvents.loaded((event) => {
+  const { server } = event;
+  const seed = server.worldData.worldGenOptions().seed();
+
+  if (server.persistentData.getLong("seed") !== seed) {
+    server.persistentData.putLong("seed", seed);
+
+    server.scheduleInTicks(10, (schedule) => {
+      server.runCommandSilent("reload");
+    });
+  }
+});
+
+ServerEvents.recipes((event) => {
+  const { server } = Utils;
+
+  if (!server) return;
+  const seed = server.persistentData.getLong("seed");
+
+  dosomething(seed);
+});
+```
+
+## 根據材料修改合成產物
+
+![圖片](https://hackmd.io/_uploads/HkN1lswqT.png)
+```javascript=
+ServerEvents.recipes((event) => {
+  const { kubejs } = event.recipes;
+
+  kubejs
+    .shapeless(Item.of("wooden_axe").withName([Text.red("斧頭只會被清除附魔，不會被替換成木斧")]), [
+      Ingredient.of("#minecraft:axes").itemIds.map((id) =>
+        Item.of(id).enchant("flame", 2).weakNBT()
+      ),
+      "sponge",
+    ])
+    .keepIngredient("sponge")
+    .modifyResult((grid, result) => {
+      const item = grid.find(Ingredient.of("#minecraft:axes"));
+      item.nbt.remove("Enchantments");
+      return item;
+    });
+});
+```
+
+:::info
+僅限 `kubejs:shaped` 和 `kubejs:shapeless` 配方可使用 `.modifyResult`
+:::
+
+## 玩家在芒草蹲下後隱身
+
+```javascript=
+PlayerEvents.tick((event) => {
+  const { player } = event;
+
+  if (player.shiftKeyDown && player.block.id === "minecraft:tall_grass") {
+    if (!player.hasEffect("invisibility")) {
+      player.potionEffects.add("invisibility", -1, 0, false, false);
+    }
+  } else {
+    player.removeEffect("invisibility");
+  }
+});
+```
 
 ---
 
@@ -390,6 +466,10 @@ const seed = `${NBT.l(server.worldData.worldGenOptions().seed())}`.replace("L", 
 [lopys_more_materials-modrinth]: https://modrinth.com/mod/morematerials
 [lopys_more_materials-mcmod]: https://mcmod.cn/class/11835
 <!-- [lopys_more_materials-wiki]: https://frinn.gitbook.io/custom-machinery-1.19/ -->
+
+[saps_meven-rhino_neoforge]: https://maven.saps.dev/#/releases/dev/latvian/mods/rhino-neoforge
+[saps_meven-kubejs_neoforge]: https://maven.saps.dev/#/releases/dev/latvian/mods/kubejs-neoforge
+
 
 <!-- <style>
   .markdown-body {
