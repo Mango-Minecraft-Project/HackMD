@@ -13,7 +13,9 @@
 
 ---
 
-## 腳本預處理參數 [KubeJS 6+]
+## 小技巧
+
+### 腳本預處理參數 [KubeJS 6+]
 
 可在腳本開頭使用預處理參數，如下
 
@@ -25,7 +27,7 @@
 |`requires`|命名空間需求|字串(String)|若未載入該命名空間則跳過載入|` ` (無)|
 ||||||
 
-### 範例
+#### 範例
 ```javascript=
 // priority: 100
 // ignored: false
@@ -34,16 +36,7 @@
 // requires: create
 ```
 
-## DamageSource 中 `immediate` 與 `actual` 的差異
-
-`immediate` 回傳直接傷害者
-`actual` 回傳傷害所有者
-
-舉例來說，玩家拿弓箭射實體：
-- `immediate` 回傳 `Arrow` (弓箭)
-- `actual` 回傳 `Player` (玩家)
-
-## 自製 KubeJS 用 VSCode Code Snippet
+### 自製 KubeJS 用 VSCode Code Snippet
 
 ```json=
 {
@@ -85,26 +78,7 @@
 }
 ```
 
-## 替換多個物品配方
-```javascript=
-ServerEvents.recipes((event) => {
-  event.replaceInput(
-    {
-      output: new RegExp([
-        "minecraft:diamond_axe",
-        "minecraft:diamond_hoe",
-        "minecraft:diamond_pickaxe",
-        "minecraft:diamond_shovel",
-        "minecraft:diamond_sword",
-      ].join("|")),
-    },
-    "minecraft:diamond",
-    "minecraft:emerald"
-  );
-});
-```
-
-## 將腳本自動同步到 Github
+### 將腳本自動同步到 Github
 
 以下步驟皆以Prism Launcher為基礎
 
@@ -125,11 +99,11 @@ ServerEvents.recipes((event) => {
       probe/
       ```
 
-## 讀取任意模組的Json檔案
+### 讀取任意模組的Json檔案
 
 [pietro-lopes/read_json_from_mod.js](https://gist.github.com/pietro-lopes/1471e43c6acef411fd98f10908185fae)
 
-## *Beans*
+### *Beans*
 
 Kubejs 有一個名為 *beans* 的功能，可以讓腳本更易讀。
 任何 `getXy()` 都可以用 `xy` 來獲取，任何 `setXy(value)` 都可以用 `xy = value` 來設置，任何 `isXy()` 都可以用 `xy` 來檢查。
@@ -139,9 +113,9 @@ Kubejs 有一個名為 *beans* 的功能，可以讓腳本更易讀。
 請注意，只有當方法沒有參數時，`get` 和 `is` 時 *beans* 才會起作用。這意味著像 `getHeldItem(InteractionHand hand)` 這樣的方法不能簡寫為 `heldItem`。
 對於 `set` 方法，需要有一個參數。
 
-## 實用模組（非KubeJS Addon為主）
+### 實用模組（非KubeJS Addon為主）
 
-### ProbeJS
+#### ProbeJS
 
 |[![badge-curseforge]][probejs-curseforge]|[![badge-modrinth]][probejs-modrinth]|[![badge-mcmod]][probejs-mcmod]|[![badge-wiki]][probejs-wiki]|
 |---|---|---|---|
@@ -150,7 +124,7 @@ Kubejs 有一個名為 *beans* 的功能，可以讓腳本更易讀。
 
 - tags: `vscode`, `code snippets`
 
-### Lychee
+#### Lychee
 
 |[![badge-curseforge]][lychee-curseforge]|[![badge-modrinth]][lychee-modrinth]|[![badge-mcmod]][lychee-mcmod]|[![badge-wiki]][lychee-wiki]|
 |---|---|---|---|
@@ -159,7 +133,7 @@ Kubejs 有一個名為 *beans* 的功能，可以讓腳本更易讀。
 
 - tags: `recipe`, `world intercation`
 
-### Loquat🧩
+#### Loquat🧩
 
 <!-- |[![badge-curseforge]][loquat-curseforge]|[![badge-modrinth]][loquat-modrinth]|[![badge-mcmod]][loquat-mcmod]|[![badge-wiki]][loquat-wiki]|
 |---|---|---|---| -->
@@ -171,7 +145,7 @@ Kubejs 有一個名為 *beans* 的功能，可以讓腳本更易讀。
 - tags: `worldgen`, `structure`
 
 
-### Custom Fluid Mixin
+#### Custom Fluid Mixin
 
 |[![badge-curseforge]][custom_fluid_mixin-curseforge]|[![badge-modrinth]][custom_fluid_mixin-modrinth]|[![badge-mcmod]][custom_fluid_mixin-mcmod]|[![badge-wiki]][custom_fluid_mixin-wiki]|
 |---|---|---|---|
@@ -180,7 +154,7 @@ Kubejs 有一個名為 *beans* 的功能，可以讓腳本更易讀。
 
 - tags: `recipe`, `world intercation`
 
-### Origins (Forge)
+#### Origins (Forge)
 
 |[![badge-curseforge]][origins_forge-curseforge]|[![badge-modrinth]][origins_forge-modrinth]|[![badge-mcmod]][origins_forge-mcmod]|[![badge-wiki]][origins_forge-wiki]|
 |---|---|---|---|
@@ -191,7 +165,7 @@ Kubejs 有一個名為 *beans* 的功能，可以讓腳本更易讀。
 
 - tags: `player attributes`
 
-### Custom Machinery
+#### Custom Machinery
 
 |[![badge-curseforge]][custom_machinery-curseforge]|[![badge-modrinth]][custom_machinery-modrinth]|[![badge-mcmod]][custom_machinery-mcmod]|[![badge-wiki]][custom_machinery-wiki]|
 |---|---|---|---|
@@ -200,7 +174,7 @@ Kubejs 有一個名為 *beans* 的功能，可以讓腳本更易讀。
 
 - tags: `multiblock`, `custom machine`
 
-### Multiblocked
+#### Multiblocked
 
 |[![badge-curseforge]][multiblocked-curseforge]|[![badge-mcmod]][multiblocked-mcmod]|[![badge-wiki]][multiblocked-wiki]|
 |---|---|---|
@@ -212,7 +186,7 @@ Kubejs 有一個名為 *beans* 的功能，可以讓腳本更易讀。
 
 - tags: `multiblock`, `custom machine`
 
-### Lopy's More Materials
+#### Lopy's More Materials
 
 |[![badge-curseforge]][lopys_more_materials-curseforge]|[![badge-modrinth]][lopys_more_materials-modrinth]|[![badge-mcmod]][lopys_more_materials-mcmod]|
 |---|---|---|
@@ -220,10 +194,12 @@ Kubejs 有一個名為 *beans* 的功能，可以讓腳本更易讀。
 > 這是一個簡單的模組，它為模組/模組包作者添加了大量可供魔改配方的材料。
 > 
 > <img src="https://media.forgecdn.net/attachments/614/397/mmt_items.png" height="500">
-  
-## KubeJS Create 所提供的 `CreateEvents`
 
-### 蒸氣鍋爐熱量源 - `boilerHeatHandler`
+## 範例
+
+### KubeJS Create 所提供的 `CreateEvents`
+
+#### 蒸氣鍋爐熱量源 - `boilerHeatHandler`
 
 ```javascript=
 CreateEvents.boilerHeatHandler((event) => {
@@ -254,7 +230,7 @@ CreateEvents.boilerHeatHandler((event) => {
 });
 ```
 
-### 管道流體效果 - `pipeFluidEffect`
+#### 管道流體效果 - `pipeFluidEffect`
 
 ```javascript=
 CreateEvents.pipeFluidEffect((event) => {
@@ -276,7 +252,7 @@ CreateEvents.pipeFluidEffect((event) => {
 });
 ```
 
-### 注液器注液方塊 - `spoutHandler`
+#### 注液器注液方塊 - `spoutHandler`
 
 ```javascript=
 CreateEvents.spoutHandler((event) => {
@@ -304,24 +280,36 @@ CreateEvents.spoutHandler((event) => {
 });
 ```
 
-## `ItemStack.weakNBT()` 與 `ItemStack.strongNBT()` 的差別
+### 替換多個物品配方
+```javascript=
+ServerEvents.recipes((event) => {
+  event.replaceInput(
+    {
+      output: new RegExp([
+        "minecraft:diamond_axe",
+        "minecraft:diamond_hoe",
+        "minecraft:diamond_pickaxe",
+        "minecraft:diamond_shovel",
+        "minecraft:diamond_sword",
+      ].join("|")),
+    },
+    "minecraft:diamond",
+    "minecraft:emerald"
+  );
+});
+```
 
-以 `Item.of("diamond_sword", "{damage:50}")` 舉例
+### 玩家死亡後掉落玩家頭顱
 
-- `.weakNBT()`
-  若物品的nbt包含 `{damage:50}` 則可以使用
-  舉例：
-  - :o: `{damage:50}`
-  - :o: `{damage:50, display:"Sword"}`
-  - :x: `{display:"Sword"}`
-- `.strongNBT()`
-  若物品的nbt ==**僅**== 包含 `"{damage:50}"` 則可以使用
-  舉例：
-  - :o: `{damage:50}`
-  - :x: `{damage:50, display:"Sword"}`
-  - :x: `{display:"Sword"}`
+```javascript=
+EntityEvents.death("player", (event) => {
+  const { player } = event;
 
-## 合成時消耗物品耐久
+  player.block.popItem(Item.playerHead(player.username));
+});
+```
+
+### 合成時消耗物品耐久
 
 ![damage ingredient recipe](https://hackmd.io/_uploads/H1KHEFIca.png)
 
@@ -339,7 +327,7 @@ ServerEvents.recipes((event) => {
 僅限 `kubejs:shaped` 和 `kubejs:shapeless` 配方可使用 `.damageIngredient`
 :::
 
-## 獲取精確的世界種子
+### 獲取精確的世界種子
 
 ```javascript=
 const seed = NBT.l(server.worldData.worldGenOptions().seed());
@@ -349,20 +337,16 @@ const seed = NBT.l(server.worldData.worldGenOptions().seed());
 只能儲存成 String 或 NBT，若存成 Number 則會因為 Java Double 浮點數精度誤差導致不精確
 :::
 
-### 在配方中使用
+#### 在配方中使用
 
 ```javascript=
 ServerEvents.loaded((event) => {
   const { server } = event;
+
   const seed = server.worldData.worldGenOptions().seed();
+  server.persistentData.putLong("seed", seed);
 
-  if (server.persistentData.getLong("seed") !== seed) {
-    server.persistentData.putLong("seed", seed);
-
-    server.scheduleInTicks(10, (schedule) => {
-      server.runCommandSilent("reload");
-    });
-  }
+  server.scheduleInTicks(10, () => server.runCommandSilent("reload"));
 });
 
 ServerEvents.recipes((event) => {
@@ -371,11 +355,11 @@ ServerEvents.recipes((event) => {
   if (!server) return;
   const seed = server.persistentData.getLong("seed");
 
-  dosomething(seed);
+  // do_something(seed);
 });
 ```
 
-## 根據材料修改合成產物
+### 根據材料修改合成產物
 
 ![圖片](https://hackmd.io/_uploads/HkN1lswqT.png)
 ```javascript=
@@ -402,7 +386,7 @@ ServerEvents.recipes((event) => {
 僅限 `kubejs:shaped` 和 `kubejs:shapeless` 配方可使用 `.modifyResult`
 :::
 
-## 玩家在芒草蹲下後隱身
+### 玩家在芒草蹲下後隱身
 
 ```javascript=
 PlayerEvents.tick((event) => {
@@ -417,6 +401,39 @@ PlayerEvents.tick((event) => {
   }
 });
 ```
+
+## 筆記
+
+### DamageSource 中 `immediate` 與 `actual` 的差異
+
+`immediate` 回傳直接傷害者
+`actual` 回傳傷害所有者
+
+舉例來說，玩家拿弓箭射實體：
+- `immediate` 回傳 `Arrow` (弓箭)
+- `actual` 回傳 `Player` (玩家)
+
+### `PlayerEvents.chat` 與 `PlayerEvents.decorateChat` 的差異
+
+- `PlayerEvents.chat`：可以被取消，主要用途為取消事件。
+- `PlayerEvents.decorateChat`：不能被取消，主要用途為修改訊息。
+
+### `ItemStack.weakNBT()` 與 `ItemStack.strongNBT()` 的差異
+
+以 `Item.of("diamond_sword", "{damage:50}")` 舉例
+
+- `.weakNBT()`
+  若物品的nbt包含 `{damage:50}` 則可以使用
+  舉例：
+  - :o: `{damage:50}`
+  - :o: `{damage:50, display:"Sword"}`
+  - :x: `{display:"Sword"}`
+- `.strongNBT()`
+  若物品的nbt ==**僅**== 包含 `"{damage:50}"` 則可以使用
+  舉例：
+  - :o: `{damage:50}`
+  - :x: `{damage:50, display:"Sword"}`
+  - :x: `{display:"Sword"}`
 
 ---
 
