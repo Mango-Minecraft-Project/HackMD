@@ -402,6 +402,49 @@ PlayerEvents.tick((event) => {
 });
 ```
 
+### 玩家範圍聊天
+
+```javascript=
+const $maxDistance = 10;
+/**
+ * @param {Internal.Player_} sender
+ * @param {string} message
+ * @param {Internal.MinecraftServer_} server
+ * @returns {Internal.Component}
+ */
+const $textFactory = (sender, message, server) => [Text.green(`[${sender.username}] `), message];
+
+PlayerEvents.chat((event) => {
+  const { player: sender, message, server } = event;
+
+  server.players.forEach((player) => {
+    if (sender.distanceToEntity(player) < $maxDistance) {
+      player.tell($textFactory(sender, message, server));
+    }
+  });
+  event.cancel();
+});
+```
+
+### 在草地上跳躍有機率將草地踩成泥土
+
+```javascript=
+const inputBlock = "minecraft:grass_block";
+const outputBlock = "minecraft:dirt";
+
+PlayerEvents.tick((event) => {
+  const { player } = event;
+
+  if (player.fallDistance > 1 && player.block.down.id === inputBlock) {
+    player.tell("You fell on grass block!");
+    if (Math.random() < 0.25) {
+      player.block.down.set(outputBlock);
+      player.tell("　The grass turned into dirt!");
+    }
+  }
+});
+```
+
 ## 筆記
 
 ### DamageSource 中 `immediate` 與 `actual` 的差異
