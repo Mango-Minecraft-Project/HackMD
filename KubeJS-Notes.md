@@ -445,6 +445,125 @@ PlayerEvents.tick((event) => {
 });
 ```
 
+### 玩家每開啟10次村莊中的戰利品箱後觸發
+
+```javascript=
+const dataKey = "villageChestsOpened";
+const maxOpenTimes = 10;
+
+BlockEvents.rightClicked("chest", (event) => {
+  const { player, block } = event;
+
+  if (block.entityData.getString("LootTable").includes("chests/village/")) {
+    player.persistentData.putLong(dataKey, player.persistentData.getLong(dataKey) + 1);
+    player.tell("You've opened a village chest!");
+
+    if (player.persistentData.getLong(dataKey) >= maxOpenTimes) {
+      player.tell("  You've opened 10 village chests!");
+      player.persistentData.putLong(dataKey, 0);
+    }
+  }
+});
+```
+
+### 隨機羊毛剪刀
+
+#### Startup
+
+```javascript=
+StartupEvents.registry("item", (event) => {
+  event.create("random_shear", "shears").texture(":item/shears").maxDamage(238);
+});
+```
+
+#### Server
+
+```javascript=
+ItemEvents.entityInteracted("kubejs:random_shear", (event) => {
+  const { entity, target, item, hand, server } = event;
+  const colors = Object.keys(Color.DYE);
+
+  function shear() {
+    server.runCommandSilent(
+      `playsound entity.sheep.shear master @a ${target.x} ${target.y} ${target.z} 1 1`
+    );
+    target.setSheared(true);
+    let i = 1 + Utils.random.nextInt(3),
+      j = 0,
+      color;
+
+    for (j; j < i; ++j) {
+      color = colors[Utils.getRandom().nextInt(16)];
+      target.block.popItem(`${color}_wool`);
+    }
+  }
+
+  if (target.type === "minecraft:sheep" && target.readyForShearing()) {
+    shear();
+    item.hurtAndBreak(1, entity, (entityx) => entityx.broadcastBreakEvent(hand));
+  }
+  event.cancel();
+});
+```
+
+### 隨機混凝土鎬
+
+#### Startup
+
+```javascript=
+StartupEvents.registry("item", (event) => {
+  event.create("random_concrete_pickaxe", "pickaxe").texture(":item/iron_pickaxe").maxDamage(250);
+});
+```
+
+#### Server
+
+```javascript=
+BlockEvents.broken((event) => {
+  const { entity, block } = event;
+
+  if (entity.mainHandItem.id === "kubejs:random_concrete_pickaxe" && block.hasTag("forge:stone")) {
+    let color = Object.keys(Color.DYE)[Utils.random.nextInt(16)];
+    block.popItem(`${color}_concrete`);
+    block.set("air");
+    event.cancel();
+  }
+});
+```
+
+### 物品實體名稱高亮顯示
+
+```javascript=
+ServerEvents.tick((event) => {
+  const { server } = event;
+
+  if (server.tickCount % 2) return;
+
+  server.entities.filterSelector("@e[type=item]").forEach(
+    /** @param {Internal.ItemEntity_} itemEntity */
+    (itemEntity) => {
+      /** @type {{Item: { Count: Internal.ByteTag_, id: string }, Age: Internal.ShortTag_}} nbt */
+      const { Item: item, Age } = itemEntity.nbt;
+
+      let name = `item.${item.id.replace(":", ".")}`;
+      let translated = Text.translate(name);
+      if (translated.string == name) {
+        translated = Text.translate(`block.${item.id.replace(":", ".")}`);
+      }
+
+      itemEntity.customName = [
+        Text.gold(`${item.Count}x`),
+        " ",
+        translated.color(Item.of(item.id).rarity.color),
+        " ",
+        Text.gray(`(${Age == -32768 ? "∞" : (6000 - Age) / 20} seconds left)`),
+      ];
+      itemEntity.customNameVisible = true;
+    }
+  );
+});
+```
+
 ## 筆記
 
 ### DamageSource 中 `immediate` 與 `actual` 的差異
