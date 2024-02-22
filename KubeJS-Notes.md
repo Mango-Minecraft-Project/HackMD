@@ -501,8 +501,8 @@ ItemEvents.entityInteracted("kubejs:random_shear", (event) => {
   if (target.type === "minecraft:sheep" && target.readyForShearing()) {
     shear();
     item.hurtAndBreak(1, entity, (entityx) => entityx.broadcastBreakEvent(hand));
+    event.cancel();
   }
-  event.cancel();
 });
 ```
 
@@ -545,22 +545,32 @@ ServerEvents.tick((event) => {
       /** @type {{Item: { Count: Internal.ByteTag_, id: string }, Age: Internal.ShortTag_}} nbt */
       const { Item: item, Age } = itemEntity.nbt;
 
-      let name = `item.${item.id.replace(":", ".")}`;
-      let translated = Text.translate(name);
-      if (translated.string == name) {
-        translated = Text.translate(`block.${item.id.replace(":", ".")}`);
-      }
+      const { descriptionId, rarity } = Item.of(item.id);
 
       itemEntity.customName = [
         Text.gold(`${item.Count}x`),
         " ",
-        translated.color(Item.of(item.id).rarity.color),
+        Text.translate(descriptionId).color(rarity.color),
         " ",
-        Text.gray(`(${Age == -32768 ? "∞" : (6000 - Age) / 20} seconds left)`),
+        Text.gray(`(${Age == -32768 ? "∞" : ((6000 - Age) / 20).toFixed(1)}s left)`),
       ];
       itemEntity.customNameVisible = true;
     }
   );
+});
+```
+
+### 獲取當前月相
+
+```javascript=
+const moonPhaseList = ["滿", "虧凸", "下弦", "殘", "新", "峨嵋", "滿", "滿"];
+
+LevelEvents.tick("overworld", (event) => {
+  const { moonPhase, dayTime, server } = event;
+  
+  if (dayTime % 24000 === 1) {
+    server.tell(`今天的月像是${moonPhaseList[moonPhase]}月`);
+  }
 });
 ```
 
