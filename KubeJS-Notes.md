@@ -11,6 +11,15 @@
 - [Rhino NeoForge][saps_meven-rhino_neoforge]
 - [KubeJS NeoForge][saps_meven-kubejs_neoforge]
 
+## 連結區
+
+|名稱|性質|連結|
+|:-:|:-:|:--|
+|KubeJS Wiki|官方|https://kubejs.com/wiki/ |
+|latvian.dev Discord|官方|https://discord.gg/hCVTFHKE |
+|Wudji的KubeJS教程（1.19+）|非官方|https://wudji.gitbook.io/xplus-kubejs-tutorial-v2-zh_cn |
+|Wudji的KubeJS教程（1.16-1.18）|非官方|https://wudji.gitbook.io/xplus-kubejs-tutorial-v1-zh_cn |
+
 ---
 
 ## 小技巧
@@ -28,6 +37,7 @@
 ||||||
 
 #### 範例
+
 ```javascript=
 // priority: 100
 // ignored: false
@@ -41,39 +51,44 @@
 ```json=
 {
   "event": {
-    "scope": "javascript",
+    "scope": "javascript,typescript",
     "prefix": "$event",
     "body": ["(event) => {", "  $0", "}"]
   },
   "priority": {
-    "scope": "javascript",
+    "scope": "javascript,typescript",
     "prefix": "$priority",
     "body": ["// priority: $1", "$0"]
   },
   "ignored": {
-    "scope": "javascript",
+    "scope": "javascript,typescript",
     "prefix": "$ignored",
     "body": ["// ignored: ${1|true,false|}", "$0"]
   },
   "packmode": {
-    "scope": "javascript",
+    "scope": "javascript,typescript",
     "prefix": "$packmode",
     "body": ["// packmode: $1", "$0"]
   },
   "requires": {
-    "scope": "javascript",
+    "scope": "javascript,typescript",
     "prefix": "$requires",
     "body": ["// requires: $1", "$0"]
   },
   "todo": {
-    "scope": "javascript",
+    "scope": "javascript,typescript",
     "prefix": "$todo",
     "body": ["// TODO", "$0"]
   },
   "license": {
-    "scope": "javascript",
+    "scope": "javascript,typescript",
     "prefix": "$license",
     "body": ["/**", " * @author MangoJellyPudding", " */", "", ""]
+  },
+  "disable ts-except-error": {
+    "scope": "typescript",
+    "prefix": "$disable-ts-except-error",
+    "body": ["// @ts-expect-error", "$0"]
   }
 }
 ```
@@ -144,7 +159,6 @@ Kubejs 有一個名為 *beans* 的功能，可以讓腳本更易讀。
 
 - tags: `worldgen`, `structure`
 
-
 #### Custom Fluid Mixin
 
 |[![badge-curseforge]][custom_fluid_mixin-curseforge]|[![badge-modrinth]][custom_fluid_mixin-modrinth]|[![badge-mcmod]][custom_fluid_mixin-mcmod]|[![badge-wiki]][custom_fluid_mixin-wiki]|
@@ -195,7 +209,7 @@ Kubejs 有一個名為 *beans* 的功能，可以讓腳本更易讀。
 > 
 > <img src="https://media.forgecdn.net/attachments/614/397/mmt_items.png" height="500">
 
-## 範例
+## 腳本範例
 
 ### KubeJS Create 所提供的 `CreateEvents`
 
@@ -281,17 +295,18 @@ CreateEvents.spoutHandler((event) => {
 ```
 
 ### 替換多個物品配方
+
 ```javascript=
 ServerEvents.recipes((event) => {
   event.replaceInput(
     {
-      output: new RegExp([
+      output: [
         "minecraft:diamond_axe",
         "minecraft:diamond_hoe",
         "minecraft:diamond_pickaxe",
         "minecraft:diamond_shovel",
         "minecraft:diamond_sword",
-      ].join("|")),
+      ],
     },
     "minecraft:diamond",
     "minecraft:emerald"
@@ -362,6 +377,7 @@ ServerEvents.recipes((event) => {
 ### 根據材料修改合成產物
 
 ![圖片](https://hackmd.io/_uploads/HkN1lswqT.png)
+
 ```javascript=
 ServerEvents.recipes((event) => {
   const { kubejs } = event.recipes;
@@ -574,6 +590,93 @@ LevelEvents.tick("overworld", (event) => {
 });
 ```
 
+### 禁止玩家使用特定指令
+
+*==You Shall Not Pass!==*
+
+```javascript=
+/**
+ * @param {Internal.CommandEventJS_} event
+ */
+function youShallNotUsePainter(event) {
+  const { input, parseResults } = event;
+
+  if (input.split(" ")[1] === "painter") {
+    parseResults.context.source.player.tell("You Shall Not Use Painter!");
+    event.cancel();
+  }
+}
+
+ServerEvents.command("kubejs", youShallNotUsePainter);
+ServerEvents.command("kjs", youShallNotUsePainter);
+```
+
+### 修改物品的Builder
+
+```javascript=
+ItemEvents.modification((event) => {
+  const ItemBuilder = Java.loadClass(
+    "dev.latvian.mods.kubejs.item.custom.BasicItemJS$Builder"
+  );
+
+  event.modify("...", (item) => {
+    const builder = new ItemBuilder("...").glow(true);
+    item.setItemBuilder(builder);
+  });
+});
+```
+
+### 套裝效果 + tooltip提示
+
+使用nbt達成tooltip提示
+
+#### server_script
+
+```javascript=
+global.armorSets = {
+  netherite: "Netherite Armor Set",
+};
+
+PlayerEvents.inventoryChanged((event) => {
+  const { item, player, slot } = event;
+
+  if (item.hasTag("forge:armors") && !item?.nbt?.armor_set) {
+    item.setNbt({ armor_set: "" });
+  }
+
+  for (let key of Object.keys(global.armorSets)) {
+    let setName = player.armorSlots.every((armor) => Utils.id(armor.id).path.startsWith(key))
+      ? key
+      : "";
+
+    player.armorSlots.forEach((eachArmor) => {
+      if (!eachArmor.empty) eachArmor.setNbt({ armor_set: setName });
+    });
+    player.inventory.getStackInSlot(slot).setNbt({ armor_set: setName });
+    player.persistentData.putString("armor_set", setName);
+  }
+});
+```
+
+#### client_script
+
+```javascript=
+ItemEvents.tooltip((event) => {
+  event.addAdvancedToAll((item, isAdvanced, tooltip) => {
+    if (item.hasTag("forge:armors") && item?.nbt?.armor_set !== undefined) {
+      /** @type {{ armor_set: string }} */
+      const { armor_set } = item.nbt;
+
+      if (global.armorSets[armor_set] !== undefined) {
+        tooltip.add(1, ["Active Armor Set: ", Text.green(global.armorSets[armor_set])]);
+      } else {
+        tooltip.add(1, ["Active Armor Set: ", Text.red("No Active")]);
+      }
+    }
+  });
+});
+```
+
 ## 筆記
 
 ### DamageSource 中 `immediate` 與 `actual` 的差異
@@ -658,14 +761,6 @@ LevelEvents.tick("overworld", (event) => {
 
 [saps_meven-rhino_neoforge]: https://maven.saps.dev/#/releases/dev/latvian/mods/rhino-neoforge
 [saps_meven-kubejs_neoforge]: https://maven.saps.dev/#/releases/dev/latvian/mods/kubejs-neoforge
-
-
-<!-- <style>
-  .markdown-body {
-      width: 50%;
-      max-width: none;
-  }
-</style> -->
 
 {%hackmd @lumynou5/dark-theme %}
 <!-- {%hackmd @themes/dracula %} -->
